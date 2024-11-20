@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "node index.js",
+    "migration": "node migration.js",
     "dev": "nodemon index.js"
   },
   "keywords": [],

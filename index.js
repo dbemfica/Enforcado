@@ -1,4 +1,4 @@
-// Import the necessary modules using ES6 syntax
+import sqlite3 from 'sqlite3';
 import express from 'express';
 import config from 'config';
 import AuthenticateTokenMiddleware from './src/middlewares/AuthenticateTokenMiddleware.js';
@@ -11,7 +11,6 @@ const JwtConfig = config.get('JwtConfig');
 const app = express();
 app.use(express.json());
 
-import sqlite3 from 'sqlite3';
 const db = new sqlite3.Database('./database/database.db');
 
 const authenticateTokenMiddleware = new AuthenticateTokenMiddleware(JwtConfig.secret);
@@ -28,8 +27,6 @@ app.post('/user/create', (req, res) => userController.create(req, res));
 
 app.post('/game/start', authenticateTokenMiddleware.handle(), (req, res) => gameController.startGame(req, res));
 app.post('/game/guess', authenticateTokenMiddleware.handle(), (req, res) => gameController.guessWord(req, res));
-
-app.get('/migrations', (req, res) => gameController.migrations(req, res));
 
 
 const PORT = process.env.PORT || 3000;

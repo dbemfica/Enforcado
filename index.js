@@ -28,7 +28,6 @@ app.post('/user/create', (req, res) => userController.create(req, res));
 app.post('/game/start', authenticateTokenMiddleware.handle(), (req, res) => gameController.startGame(req, res));
 app.post('/game/guess', authenticateTokenMiddleware.handle(), (req, res) => gameController.guessWord(req, res));
 
-
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

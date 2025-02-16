@@ -12,26 +12,30 @@ class UserModel {
     }
 
     async login(email, password) {
-        const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
-        let user = await this.getUserByEmail(email);
-        if (user && user.password === hashedPassword) {
-            let token = jwt.sign({ id: user.id, email: user.email }, JwtConfig.secret, { expiresIn: '1h' });
-            return { message: 'Login successful', token: token };
-        } else {
-            return { message: 'Login failed' };
-        }
+        return new Promise(async (resolve, reject) => {
+            const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
+            let user = await this.getUserByEmail(email);
+            if (user && user.password === hashedPassword) {
+                let token = jwt.sign({ id: user.id, email: user.email }, JwtConfig.secret, { expiresIn: '1h' });
+                resolve({ message: 'Login successful', token: token });
+            } else {
+                reject({ message: 'Invalid credentials' });
+            }
+        });
     }
 
     async create(name, email, password) {
-        const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
-        this.db.serialize(() => {
+        return new Promise(async (resolve, reject) => {
+            const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
             const stmt = this.db.prepare("INSERT INTO users (name, email, password, created_at) VALUES (?, ?, ?, ?)");
-            stmt.run(name, email, hashedPassword, new Date().toISOString());
-            stmt.finalize();    
+            stmt.run(name, email, hashedPassword, new Date().toISOString(), function(err) {
+                if (err) {
+                    reject(err);
+                }
+            });
+            let user = await this.getUserByEmail(email);
+            resolve(user);
         });
-        this.db.close();
-        let user = await this.getUserByEmail(email);
-        return user;
     }
 
     async getUserByEmail(email) {
